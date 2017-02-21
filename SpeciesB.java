@@ -13,16 +13,10 @@ public class SpeciesB extends Species {
 	private final double fitness = 0.4;
 	/**
 	 * 
-	 */
-	public SpeciesB(int x, int y) {
-		super(x,y);
-	}
-	/**
-	 * 
 	 * @param dimension
 	 */
-	public SpeciesB() {
-		super();
+	public SpeciesB(Grid g) {
+		super(g);
 	}
 	
 //	public double setFitness(){
@@ -33,6 +27,10 @@ public class SpeciesB extends Species {
 		Random rand = new Random();
 		
 		lifespan = rand.nextInt(maxLifespan);
+	}
+	@Override
+	void setSpeciesSymbol() {
+		speciesSymbol = "B";
 	}
 
 }

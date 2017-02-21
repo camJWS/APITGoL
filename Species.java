@@ -5,38 +5,43 @@ public abstract class Species extends Thread {
 	protected int lifespan;
 	protected int[] coords;
 	protected int xcoord, ycoord;
-	protected int[][] posA, posB; 
+	protected int[][] xyPos;
+	protected Grid grid;
+	protected String[][] gridTemp;
+	protected int dimension;
+	protected String speciesSymbol;
 	//protected Lock lock;
 	
-	public Species(int x, int y) {
-		xcoord = x;
-		ycoord = y;
+	public Species(Grid g) {
+		grid = g;
+		gridTemp = grid.getGrid();
 		coords = new int[2];
-		coords[0] = xcoord;
-		coords[1] = ycoord;
+		dimension = grid.getGridDimension();
 	}
 	
-	public Species() {
-//		Random rand = new Random();
-//		xcoord = rand.nextInt(dimension);
-//		ycoord = rand.nextInt(dimension);
-	}
-	
-	public void run(){
+	public synchronized void run(){
+		this.setSpeciesSymbol();
+		coords = this.initialise();
+		gridTemp[coords[0]][coords[1]] = this.getSpeciesSymbol();
+		grid.setGrid(gridTemp);
+	//	grid.printGrid();
 		this.setLifespan();
 		try {
-			this.lifetime();
+			Thread.sleep(1000*this.getLifeSpan());
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		this.die();
+		gridTemp[coords[0]][coords[1]] = "-";
+		grid.setGrid(gridTemp);
+	//	grid.printGrid();
 		return;
 		
 	}
 	
 	public void run(int x, int y){
 		this.setLifespan();
+		this.initialise();
 		try {
 			this.lifetime();
 		} catch (InterruptedException e) {
@@ -50,6 +55,14 @@ public abstract class Species extends Thread {
 	
 	//abstract double setFitness();
 	abstract void setLifespan();
+	
+	public String[][] getNewGrid(){
+		return grid.getGrid();
+	}
+	
+	public int[] getNewCoords(){
+		return coords;
+	}
 	
 	public void reproduce(){
 		
@@ -69,12 +82,39 @@ public abstract class Species extends Thread {
 	public void kill(){
 		
 	}
-	public void initialise(){
+	public int[] initialise(){
 		
+		Random rand = new Random();
+		
+		//for (int i = 0; i < 1; i++){
+		//	String creature = "a"+i;
+
+			int xcoord = rand.nextInt(dimension);
+			int ycoord = rand.nextInt(dimension);
+			coords[0] = xcoord;
+			coords[1] = ycoord;
+			//Thread creature = new SpeciesA(xcoordA, ycoordA);
+			
+//			xyPos[i][0] = xcoord;
+//			xyPos[i][1] = ycoord;
+			
+			//grid.getGrid()[xcoord][ycoord] = this.getSpeciesSymbol();
+		//}
+		return coords;
+	}
+	
+	abstract void setSpeciesSymbol();
+	
+	public String getSpeciesSymbol(){
+		return speciesSymbol;
 	}
 	
 	public void lifetime() throws InterruptedException{
 		this.sleep(lifespan*1000);
+	}
+	
+	public int getLifeSpan(){
+		return lifespan;
 	}
 	
 	public int[] getCoords(){
