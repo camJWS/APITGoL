@@ -6,6 +6,8 @@ public class Grid {
 	private int cols;
 	private int[][] posA, posB; 
 	private int dimension;
+	private SpeciesA[] listA;
+	private SpeciesB[] listB;
 	
 	public Grid(int r, int c){
 		rows = r;
@@ -20,10 +22,65 @@ public class Grid {
 		posA = new int[5][2];
 		posB = new int[5][2];
 		
-		if(this.gridInit(rows))
-			this.printGrid();
-		else
+		listA = new SpeciesA[5];
+		listB = new SpeciesB[5];
+		
+		if(this.gridInit(rows)){
 			this.gridInit(rows);
+			this.printGrid();
+			for (int i = 0; i < 5; i++){
+				listA[i] = new SpeciesA(posA[i][0], posA[i][1]);
+				listB[i] = new SpeciesB(posB[i][0], posB[i][1]);
+				listA[i].start();
+				listB[i].start();
+				while (listA[i].isAlive()){
+					gridMatrix[posA[i][0]][posA[i][1]] = "A";
+					
+				}
+				this.printGrid();
+					
+				while(listB[i].isAlive()){
+					gridMatrix[posB[i][0]][posB[i][1]] = "B";
+				}
+				this.printGrid();
+				
+				this.printGrid();
+				
+				gridMatrix[posA[i][0]][posA[i][1]] = "-";
+				
+				gridMatrix[posB[i][0]][posB[i][1]] = "-";
+				
+				this.printGrid();
+			}
+			
+		}
+		else{
+			System.out.println("Duplicated coords. Stop.");
+//			this.gridInit(rows);
+//			this.printGrid();
+//			for (int i = 0; i < 5; i++){
+//				listA[i] = new SpeciesA(posA[i][0], posA[i][1]);
+//				listB[i] = new SpeciesB(posB[i][0], posB[i][1]);
+//				listA[i].start();
+//				try {
+//					listA[i].wait();
+//				} catch (InterruptedException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//				gridMatrix[posA[i][0]][posA[i][1]] = "-";
+//				listB[i].start();
+//				try {
+//					listB[i].wait();
+//				} catch (InterruptedException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//				gridMatrix[posB[i][0]][posB[i][1]] = "-";
+//			}
+//			this.printGrid();
+		}
+			
 	}
 	
 	public boolean gridInit(int dimension){
@@ -31,9 +88,11 @@ public class Grid {
 		Random rand = new Random();
 		
 		for (int i = 0; i < 5; i++){
-			
+			String creature = "a"+i;
 			int xcoordA = rand.nextInt(dimension);
 			int ycoordA = rand.nextInt(dimension);
+			
+			//Thread creature = new SpeciesA(xcoordA, ycoordA);
 			
 			posA[i][0] = xcoordA;
 			posA[i][1] = ycoordA;
@@ -74,5 +133,6 @@ public class Grid {
 		}
 		return true;
 	}
+
 	
 }
