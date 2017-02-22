@@ -19,6 +19,10 @@ public class SpeciesA extends Species {
 		super(g);
 	}
 	
+	public SpeciesA(int x, int y){
+		super(x,y);
+	}
+	
 //	public double setFitness(){
 //		return 0.0;
 //	}
@@ -29,7 +33,7 @@ public class SpeciesA extends Species {
 		lifespan = rand.nextInt(maxLifespan);
 	}
 	@Override
-	void setSpeciesSymbol() {
+	public void setSpeciesSymbol() {
 		speciesSymbol = "A";
 	}
 

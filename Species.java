@@ -7,64 +7,83 @@ public abstract class Species extends Thread {
 	protected int xcoord, ycoord;
 	protected int[][] xyPos;
 	protected Grid grid;
-	protected String[][] gridTemp;
+	protected Species[][] gridTemp;
 	protected int dimension;
 	protected String speciesSymbol;
+	protected boolean empty;
 	//protected Lock lock;
 	
 	public Species(Grid g) {
 		grid = g;
-		gridTemp = grid.getGrid();
 		coords = new int[2];
 		dimension = grid.getGridDimension();
+		gridTemp = new Species[dimension][dimension];
+		for (int i = 0; i < dimension; i++){
+			for (int j = 0; j < dimension; j++){
+				gridTemp[i][j] = grid.getGrid()[i][j];
+			}
+		}
+		
+		
+		empty = false;
+	}
+	
+	public Species(int x, int y){
+		xcoord = x;
+		ycoord = y;
+		speciesSymbol = "-";
+		empty = true;
+		coords = new int[2];
+		
 	}
 	
 	public synchronized void run(){
 		this.setSpeciesSymbol();
+		this.setLifespan();
 		coords = this.initialise();
-		gridTemp[coords[0]][coords[1]] = this.getSpeciesSymbol();
-		grid.setGrid(gridTemp);
+		grid.setElement(coords[0], coords[1], this);
+	//	grid.setGrid(gridTemp);
 	//	grid.printGrid();
-		this.setLifespan();
+
+		//System.out.println(this.getSpeciesSymbol() + " Lifetim = " + this.getLifeSpan());
 		try {
-			Thread.sleep(1000*this.getLifeSpan());
+			sleep(1000*this.getLifeSpan());
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		gridTemp[coords[0]][coords[1]] = "-";
-		grid.setGrid(gridTemp);
+		
+		grid.setElement(coords[0], coords[1], this.die());
+	//	grid.setGrid(gridTemp);
 	//	grid.printGrid();
 		return;
-		
-	}
-	
-	public void run(int x, int y){
-		this.setLifespan();
-		this.initialise();
-		try {
-			this.lifetime();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		this.die();
-		return;
-		
 	}
 	
 	//abstract double setFitness();
 	abstract void setLifespan();
 	
-	public String[][] getNewGrid(){
-		return grid.getGrid();
-	}
+//	public String[][] getNewGrid(){
+//		return grid.getGrid();
+//	}
 	
 	public int[] getNewCoords(){
 		return coords;
 	}
 	
-	public void reproduce(){
+	public void reproduce(double fitness){
+		for (int i = 0; i < 3; i++){
+			for (int j = 0; j < 3; j++){
+				if (gridTemp[coords[0]-1+j][coords[1]-1+i].equals("-")){
+					if (Math.random() <= fitness){
+						// Code to reproduce
+					}
+				}
+				else if (gridTemp[coords[0]-1+j][coords[1]-1+i].isEmpty()){
+					
+				}
+			}
+			
+		}
 		
 	}
 	public void search(){
@@ -75,7 +94,8 @@ public abstract class Species extends Thread {
 	}
 	
 	
-	public void die(){
+	public EmptySquare die(){
+		return new EmptySquare(coords[0],coords[1]);
 		
 	}
 	
@@ -132,5 +152,9 @@ public abstract class Species extends Thread {
 					continue;
 		}
 		return true;
+	}
+	
+	public boolean isEmpty(){
+		return empty;
 	}
 }

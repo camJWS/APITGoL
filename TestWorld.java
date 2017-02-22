@@ -20,12 +20,5 @@ public class TestWorld{
 		listB.add(new SpeciesB(grid));
 		listA.get(0).start();
 		listB.get(0).start();
-		//grid.gridInit(rows);
-		//grid.printGrid();
-//		for (int i = 0; i < initialA; i++){
-//			SpeciesA initA = new SpeciesA(rows);
-//			SpeciesB initB = new SpeciesB(rows);
-//		}
-		
 	}
 }

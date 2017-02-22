@@ -1,7 +1,7 @@
 import java.util.Random;
 
 public class Grid extends Thread {
-	private String[][] gridMatrix;
+	private Species[][] gridMatrix;
 	private int rows;
 	private int cols;
 	private int[][] posA, posB; 
@@ -14,10 +14,10 @@ public class Grid extends Thread {
 		cols = c;
 		dimension = r;
 
-		gridMatrix = new String[rows][cols]; 
+		gridMatrix = new Species[rows][cols]; 
 		for (int i = 0; i < rows; i++){
 			for (int j = 0; j < cols; j++){
-				gridMatrix[i][j] = "-";
+				gridMatrix[i][j] = new EmptySquare(i,j);
 			}
 		}
 	}
@@ -35,7 +35,7 @@ public class Grid extends Thread {
 		return;
 	}
 	
-	public void setGrid(String[][] g){
+	public void setGrid(Species[][] g){
 		gridMatrix = g;
 	}
 	
@@ -43,15 +43,15 @@ public class Grid extends Thread {
 		for (int i = 0; i < rows; i++){
 			System.out.print("\n");
 			for (int j = 0; j < cols; j++){
-				System.out.print(gridMatrix[i][j] + " ");
+				System.out.print(gridMatrix[i][j].getSpeciesSymbol() + " ");
 			}
 		}
 		System.out.print("\n");
 	}
 	
-	public void setBirth(int x, int y, String creature){
-		gridMatrix[x][y] = creature;
-	}
+//	public void setBirth(int x, int y, String creature){
+//		gridMatrix[x][y] = creature;
+//	}
 	
 	private boolean checkCoords(int[][] input){
 		for (int i = 0; i < 5; i++){
@@ -65,8 +65,16 @@ public class Grid extends Thread {
 		return true;
 	}
 	
-	public String[][] getGrid(){
+	public Species[][] getGrid(){
 		return gridMatrix;
+	}
+	
+	public void setElement(int x, int y, Species s){
+		gridMatrix[x][y] = s;
+	}
+	
+	public String getElement(int x, int y){
+		return gridMatrix[x][y].getSpeciesSymbol();
 	}
 	
 	public int getGridDimension(){
