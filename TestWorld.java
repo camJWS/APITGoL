@@ -9,16 +9,15 @@ public class TestWorld{
 		final int initialB = 5;
 		int rows = 20;
 		int cols = rows;
-		ArrayList<SpeciesA> listA = new ArrayList<SpeciesA>();
-		ArrayList<SpeciesB> listB = new ArrayList<SpeciesB>();
+//		ArrayList<SpeciesA> listA = new ArrayList<SpeciesA>();
+//		ArrayList<SpeciesB> listB = new ArrayList<SpeciesB>();
 		
-		
-
 		grid = new Grid(rows, cols);
 		grid.start();
-		listA.add(new SpeciesA(grid));
-		listB.add(new SpeciesB(grid));
-		listA.get(0).start();
-		listB.get(0).start();
+		grid.startGame(4);
+//		listA.add(new SpeciesA(grid));
+//		listB.add(new SpeciesB(grid));
+//		listA.get(0).start();
+//		listB.get(0).start();
 	}
 }

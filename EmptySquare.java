@@ -13,12 +13,11 @@ public class EmptySquare extends Species {
 	 * 
 	 * @param dimension
 	 */
-	public EmptySquare(Grid g) {
-		super(g);
-	}
-	
-	public EmptySquare(int x, int y){
-		super(x,y);
+	public EmptySquare(int x, int y, Grid g) {
+		super(x,y,g);
+		//type = true;
+		empty = true;
+		speciesSymbol = "-";
 	}
 	
 //	public double setFitness(){
@@ -31,6 +30,14 @@ public class EmptySquare extends Species {
 	@Override
 	public void setSpeciesSymbol() {
 		speciesSymbol = "-";
+	}
+	
+	public void reproduce(){
+		
+	}
+	
+	public double getFitness(){
+		return 0.0;
 	}
 
 
