@@ -1,134 +1,200 @@
 import java.util.ArrayList;
 import java.util.Random;
-
+/**
+ * Grid initialises the grid, and runs
+ * the grid visualisation on its own Thread  
+ * @author Cameron Shanks
+ *
+ */
 public class Grid extends Thread {
-	private Species[][] gridMatrix;
-	private int rows;
-	private int cols;
-	private int[][] posA, posB; 
-	private int dimension;
-	private SpeciesA[] arrayA;
-	private SpeciesB[] arrayB;
-	private ArrayList<SpeciesA> listA;
-	private ArrayList<SpeciesB> listB;
+	private Species[][] speciesGrid;
+	private int[][] posList; 
+	private final int GRIDSIZE;
+	private final int NUMDIMENSIONS = 2;
+	private final int NUMINITIAL;
+	private ArrayList<SpeciesA> creatureListA;
+	private ArrayList<SpeciesB> creatureListB;
+	private final boolean WRAPAROUND;
 	
-	public Grid(int r, int c){
-		rows = r;
-		cols = c;
-		dimension = r;
-		
-		listA = new ArrayList<SpeciesA>();
-		listB = new ArrayList<SpeciesB>();
-		
-		gridMatrix = new Species[rows][cols]; 
-		for (int i = 0; i < rows; i++){
-			for (int j = 0; j < cols; j++){
-				gridMatrix[i][j] = new EmptySquare(i,j,this);
+	public Grid(int d, int n, boolean w){
+		GRIDSIZE = d;
+		NUMINITIAL = n;
+		creatureListA = new ArrayList<SpeciesA>();
+		creatureListB = new ArrayList<SpeciesB>();
+		WRAPAROUND = w;
+		speciesGrid = new Species[GRIDSIZE][GRIDSIZE]; 
+		for (int i = 0; i < GRIDSIZE; i++){
+			for (int j = 0; j < GRIDSIZE; j++){
+				speciesGrid[i][j] = new EmptySquare(i,j,this);
 			}
 		}
 	}
 	
 	public void run(){
-		for (int i = 0; i < 100; i++){
+		for (int i = 0; i < 1000; i++){
 			this.printGrid();
 			try {
-				this.sleep(500);
+				sleep(500);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 		return;
 	}
 	
+	public Species[][] getSpeciesGrid() {
+		return speciesGrid;
+	}
+
+	public void setSpeciesGrid(Species[][] speciesGrid) {
+		this.speciesGrid = speciesGrid;
+	}
+
+	public int[][] getPosList() {
+		return posList;
+	}
+
+	public void setPosList(int[][] posList) {
+		this.posList = posList;
+	}
+
+	public ArrayList<SpeciesA> getCreatureListA() {
+		return creatureListA;
+	}
+
+	public void setCreatureListA(ArrayList<SpeciesA> creatureListA) {
+		this.creatureListA = creatureListA;
+	}
+
+	public ArrayList<SpeciesB> getCreatureListB() {
+		return creatureListB;
+	}
+
+	public void setCreatureListB(ArrayList<SpeciesB> creatureListB) {
+		this.creatureListB = creatureListB;
+	}
+
+	public int getGRIDSIZE() {
+		return GRIDSIZE;
+	}
+
+	public int getNUMDIMENSIONS() {
+		return NUMDIMENSIONS;
+	}
+
+	public int getNUMINITIAL() {
+		return NUMINITIAL;
+	}
+
 	public void setGrid(Species[][] g){
-		gridMatrix = g;
+		speciesGrid = g;
 	}
 	
 	public void printGrid(){
-		for (int i = 0; i < rows; i++){
+		for (int i = 0; i < GRIDSIZE; i++){
 			System.out.print("\n");
-			for (int j = 0; j < cols; j++){
-				System.out.print(gridMatrix[i][j].getSpeciesSymbol() + " ");
+			for (int j = 0; j < GRIDSIZE; j++){
+				System.out.print(speciesGrid[i][j].getSpeciesSymbol() + " ");
 			}
 		}
 		System.out.print("\n");
 	}
 	
-//	public void setBirth(int x, int y, String creature){
-//		gridMatrix[x][y] = creature;
-//	}
-	
 	private boolean checkCoords(int[][] input){
-		for (int i = 0; i < 5; i++){
-			for  (int j = 0; j < 5 && j != i; j++)
+		for (int i = 0; i < NUMINITIAL; i++){
+			for  (int j = 0; j < NUMINITIAL && j != i; j++){
+				//System.out.println("("+ input[i][0] + "," + input[i][1] + ")\n(" + input[j][0] + "," + input[j][1] + ")\n");
 				if (input[i][0] == input[j][0] && input[i][1] == input[j][1]){
 					return false;
 				}
 				else
 					continue;
+			}
 		}
 		return true;
 	}
 	
 	public Species[][] getGrid(){
-		return gridMatrix;
+		return speciesGrid;
 	}
 	
 	public void setElement(int x, int y, Species s){
-		gridMatrix[x][y] = s;
+		speciesGrid[x][y] = s;
 	}
 	
 	public Species getElement(int x, int y){
-		return gridMatrix[x][y];
+		return speciesGrid[x][y];
 	}
 	
 	public int getGridDimension(){
-		return dimension;
+		return GRIDSIZE;
 		
 	}
 	
 	public void createNewCreature(int x, int y, String type){
+		Species t = null;
 		if (type.equals("A")){
-			//System.out.println("This is type A");
-			Species t = new SpeciesA(x,y,this);
-			this.setElement(x, y, t);
-			t.start();
-//			listA.add(new SpeciesA(x,y,this));
-			return;
+			t = new SpeciesA(x,y,this);
 		}
 		else if (type.equals("B")){
-			//System.out.println("This is type B");
-			//listB.add(new SpeciesB(x,y,this));
-			Species t = new SpeciesB(x,y,this);
-			this.setElement(x, y, t);
-			t.start();
-			return;		
-		}	
-//		else{
-//			return new EmptySquare(x,y,this);
-//		}
-			
+			t = new SpeciesB(x,y,this);
+		}
+		this.setElement(x, y, t);
+		t.start();
+		return;				
 	}
 	
-	public void startGame(int numInitCreatures){
-		for (int i = 0; i < numInitCreatures; i++){
-			listA.add(new SpeciesA(this.getinitialCoords()[0], this.getinitialCoords()[1], this));
-			listB.add(new SpeciesB(this.getinitialCoords()[0], this.getinitialCoords()[1], this));
-			listA.get(i).start();
-			listB.get(i).start();
+	public void startGame(){
+		posList = new int[2*NUMINITIAL][NUMDIMENSIONS];
+		int[] xyPosA = new int[NUMDIMENSIONS];
+		int[] xyPosB = new int[NUMDIMENSIONS];
+		//posB = new int[NUMINITIAL][NUMDIMENSIONS];
+		for (int i = 0; i < NUMINITIAL; i++){
+			xyPosA = getInitialCoords();
+					//	System.out.println("A Coordinate " + i + " (" + xyPosA[0] + "," + xyPosA[1]+")");
+			xyPosB = getInitialCoords();
+					//	System.out.println("B Coordinate " + i + " (" + xyPosB[0] + "," + xyPosB[1]+")");
+			
+			posList[i][0] = xyPosA[0];
+			posList[i][1] = xyPosA[1];
+			posList[i+NUMINITIAL][0] = xyPosB[0];
+			posList[i+NUMINITIAL][1] = xyPosB[1];
 		}
+			
+		if (this.checkCoords(posList)){
+			//System.out.println("coordinates good");
+			for (int i = 0; i < NUMINITIAL; i++){
+				creatureListA.add(new SpeciesA(posList[i][0], posList[i][1], this));
+				creatureListA.get(i).start();
+				creatureListB.add(new SpeciesB(posList[i+NUMINITIAL][0], posList[i+NUMINITIAL][1], this));
+				creatureListB.get(i).start();
+			//	System.out.println("A Fitness: " + creatureListA.get(i).getFitness() + ", coordinates (" + creatureListA.get(i).getCoords()[0] + "," + creatureListA.get(i).getCoords()[1] + ")" );
+				
+			//	System.out.println("B Fitness: " + creatureListB.get(i).getFitness() + ", coordinates (" + creatureListB.get(i).getCoords()[0] + "," + creatureListB.get(i).getCoords()[1] + ")" );
+				//return;
+			}
+		}
+		else{
+			System.err.println("DUPLICATE Coordinates...");
+			this.startGame();
+			return;
+		}
+		
 		
 	}
 	
-	public int[] getinitialCoords(){
+	public int[] getInitialCoords(){
 		Random rand = new Random();
-		int[] coords = new int[2];
-		int xcoord = rand.nextInt(dimension);
-		int ycoord = rand.nextInt(dimension);
+		int[] coords = new int[NUMDIMENSIONS];
+		int xcoord = rand.nextInt(GRIDSIZE-1);
+		int ycoord = rand.nextInt(GRIDSIZE-1);
 		coords[0] = xcoord;
 		coords[1] = ycoord;
 		return coords;
+	}
+	
+	public boolean isWrapAround(){
+		return WRAPAROUND;
 	}
 
 	

@@ -31,10 +31,7 @@ public class EmptySquare extends Species {
 	public void setSpeciesSymbol() {
 		speciesSymbol = "-";
 	}
-	
-	public void reproduce(){
-		
-	}
+
 	
 	public double getFitness(){
 		return 0.0;

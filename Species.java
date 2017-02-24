@@ -1,4 +1,5 @@
 import java.util.Random;
+import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class Species extends Thread {
 	
@@ -8,12 +9,13 @@ public abstract class Species extends Thread {
 	protected int[][] xyPos;
 	protected Grid grid;
 	protected Species[][] gridTemp;
-	protected int dimension;
+	protected final int GRIDSIZE;
 	protected String speciesSymbol;
 	protected boolean empty;
 	protected boolean type;
-//	protected double fitness;
-	//protected Lock lock;
+	protected ReentrantLock gridLock;	
+	protected double fitness;
+	protected final int BIRTHRANGE = 3; // Number of neighbouring squares creatures ca
 	
 	public Species(int x, int y, Grid g) {
 		grid = g;
@@ -22,106 +24,185 @@ public abstract class Species extends Thread {
 		coords = new int[2];
 		coords[0] = xcoord;
 		coords[1] = ycoord;
-		//fitness = 0.0;
-		//grid.setElement(xcoord, ycoord, this);
-		
-		dimension = grid.getGridDimension();
-//		gridTemp = new Species[dimension][dimension];
-//		for (int i = 0; i < dimension; i++){
-//			for (int j = 0; j < dimension; j++){
-//				gridTemp[i][j] = grid.getGrid()[i][j];
-//			}
-//		}
-		
-		
-		//empty = false;
+		GRIDSIZE = grid.getGRIDSIZE();
+		grid.setElement(xcoord, ycoord, this);
+		//dimension = grid.getGridDimension();
+		gridLock = new ReentrantLock();
 	}
 	
-	public synchronized void run(){
-		try {
+	public void run(){
+		try{
 			this.setSpeciesSymbol();
 			this.setLifespan();
-			//coords = this.initialise();
-		//	grid.setElement(coords[0], coords[1], this);
-		//	grid.setGrid(gridTemp);
-		//	grid.printGrid();
-	
-			//System.out.println(this.getSpeciesSymbol() + " Lifetim = " + this.getLifeSpan());
-			
+			gridLock.lock();
+			try{
+				grid.setElement(xcoord, ycoord, this);
+			}
+			finally{
+				gridLock.unlock();
+			}
 			sleep(1000*this.getLifeSpan());
-			grid.setElement(coords[0], coords[1], this.die());
-			this.reproduce();
-			
-		
-		//	grid.setGrid(gridTemp);
-		//	grid.printGrid();
+			gridLock.lock();
+			try{
+				grid.setElement(coords[0], coords[1], this.die());
+				this.reproduce();
+			}
+			finally{
+				gridLock.unlock();
+			}
 			return;
 		} catch (InterruptedException e) {
-			//e.printStackTrace();
-			this.interrupt();
 			return;
 		}
-		//System.out.println("Fitness: " + fitness);
-		
-
 	}
 	
-	//abstract double setFitness();
 	abstract void setLifespan();
-	
-//	public String[][] getNewGrid(){
-//		return grid.getGrid();
-//	}
 	
 	public int[] getNewCoords(){
 		return coords;
 	}
 	
-	abstract void reproduce();
-//	public void reproduce(){
-//		for (int i = 0; i < 3; i++){
-//			for (int j = 0; j < 3; j++){
-//				
-//				//System.out.println(Math.random());
-//				int xtemp = coords[0]-1+j;
-//				int ytemp = coords[1]-1+i;
-//				if (xtemp < 0){
-//					xtemp = dimension-1;
-//				}
-//				else if (xtemp >= dimension){
-//					xtemp = 0;
-//				}
-//				if (ytemp < 0){
-//					ytemp = dimension-1;
-//				}
-//				else if (ytemp >= dimension){
-//					ytemp = 0;
-//				}
-//				System.out.println("this.getFitness =" + this.getFitness());
-//				System.out.println("that.getFitness = " + grid.getElement(xtemp, ytemp).getFitness());
-//				if (grid.getElement(xtemp, ytemp).isEmpty()){
-//					if (Math.random() <= this.getFitness()){
-//						grid.createNewCreature(xtemp, ytemp, this.getSpeciesSymbol());
-//						System.out.println("Testing: "/* + grid.getElement(xtemp, ytemp).getSpeciesSymbol()*/);
+	public void reproduce(){
+		for (int i = 0; i < BIRTHRANGE; i++){
+			for (int j = 0; j < BIRTHRANGE; j++){
+				int xtemp = coords[0]-1+j;
+				int ytemp = coords[1]-1+i;
+				if (grid.isWrapAround()){
+					if (xtemp == -1){
+						xtemp = GRIDSIZE-1;
+					}
+					else if (xtemp == -2){
+						xtemp = GRIDSIZE -2;
+					}
+					else if (xtemp == -3){
+						xtemp = GRIDSIZE -3;
+					}
+					else if (xtemp == GRIDSIZE){
+						xtemp = 0;
+					}
+					else if (xtemp == GRIDSIZE+1){
+						xtemp = 1;
+					}
+					else if (xtemp == GRIDSIZE+2){
+						xtemp = 2;
+					}
+					if (ytemp == -1){
+						ytemp = GRIDSIZE-1;
+					}
+					else if (ytemp == -2){
+						ytemp = GRIDSIZE -2;
+					}
+					else if (ytemp == -3){
+						ytemp = GRIDSIZE -3;
+					}
+					else if (ytemp == GRIDSIZE){
+						ytemp = 0;
+					}
+					else if (ytemp == GRIDSIZE+1){
+						ytemp = 1;
+					}
+					else if (ytemp == GRIDSIZE+2){
+						ytemp = 2;
+					}
+					this.birth(xtemp, ytemp);
+//					Species neighbour = grid.getElement(xtemp, ytemp);
+//					if (neighbour.isEmpty()){
+//						neighbour.interrupt();
+//						if (Math.random() <= this.getFitness()){
+//							grid.createNewCreature(xtemp, ytemp, this.getSpeciesSymbol());
+//							this.interrupt();
+//						}
 //					}
-//				}
-//				else/* if (!grid.getGrid()[xtemp][ytemp].isEmpty())*/{
-//					//double otherFitness = grid.getElement(xtemp, ytemp).getFitness();
-//					if (Math.random() <= (this.getFitness() - grid.getElement(xtemp, ytemp).getFitness())) {
-//						grid.createNewCreature(xtemp, ytemp, this.getSpeciesSymbol());
-//						System.out.println("Testing: "/* + grid.getElement(xtemp, ytemp).getSpeciesSymbol()*/);
+//					else {
+//						neighbour.interrupt();
+//						if (Math.random() <= (this.getFitness() - neighbour.getFitness())) {
+//							grid.createNewCreature(xtemp, ytemp, this.getSpeciesSymbol());
+//							this.interrupt();
+//						}
 //					}
-//				}
-////				else
-////					System.out.println("error");
-//			}
-//		}
-//		
+				//}
+				}
+				
+				else{ // is Not WRAPAROUND
+					if (xtemp < 0 || xtemp >= GRIDSIZE || ytemp < 0 || ytemp >= GRIDSIZE){
+						continue;
+					}
+					else{
+						this.birth(xtemp, ytemp);
+						
+					}
+				
+				
+				//int[][] xyTemp = this.searchWrapAround();
+				
+			//	for (int i = 0; i < BIRTHRANGE*BIRTHRANGE; i++){
+//					Species neighbour = grid.getElement(xtemp, ytemp);
+//					if (neighbour.isEmpty()){
+//						neighbour.interrupt();
+//						if (Math.random() <= this.getFitness()){
+//							grid.createNewCreature(xtemp, ytemp, this.getSpeciesSymbol());
+//							this.interrupt();
+//						}
+//					}
+//					else {
+//						neighbour.interrupt();
+//						if (Math.random() <= (this.getFitness() - neighbour.getFitness())) {
+//							grid.createNewCreature(xtemp, ytemp, this.getSpeciesSymbol());
+//							this.interrupt();
+//						}
+					}
+				}
+			
+				
+			}
+		}
+		
+	public void birth(int x, int y){
+		Species neighbour = grid.getElement(x, y);
+		if (neighbour.isEmpty()){
+			neighbour.interrupt();
+			if (Math.random() <= this.getFitness()){
+				grid.createNewCreature(x, y, this.getSpeciesSymbol());
+				this.interrupt();
+			}
+		}
+		else {
+			neighbour.interrupt();
+			if (Math.random() <= (this.getFitness() - neighbour.getFitness())) {
+				grid.createNewCreature(x, y, this.getSpeciesSymbol());
+				this.interrupt();
+			}
+		}
+	}
+		
+	//}
 //	}
 	
-	public void search(){
-		
-	}
+//	public int[][] searchWrapAround(){
+//		int [][] xyTemp = new int[BIRTHRANGE*BIRTHRANGE][grid.getNumDimensions()];
+//		for (int i = 0; i < BIRTHRANGE; i++){
+//			for (int j = 0; j < BIRTHRANGE; j++){
+//				xyTemp[i+j][0] = (coords[0]-1+j);
+//				xyTemp[i+j][1] = (coords[1]-1+i);
+//				if (xyTemp[i+j][0] < 0){
+//					xyTemp[i+j][0] = dimension-1;
+//				}
+//				else if (xyTemp[i+j][0] >= dimension){
+//					xyTemp[i+j][0] = 0;
+//				}
+//				if (xyTemp[i+j][1] < 0){
+//					xyTemp[i+j][1] = dimension-1;
+//				}
+//				else if (xyTemp[i+j][1] >= dimension){
+//					xyTemp[i+j][1] = 0;
+//				}
+//				
+//			}
+//			System.out.println(xyTemp[i][0] + " " + xyTemp[i][1]);
+//		}
+//		return xyTemp;
+//	}
+	
 	public void born(){
 		
 	}
@@ -134,16 +215,6 @@ public abstract class Species extends Thread {
 	public void kill(){
 		
 	}
-	
-//	public int[] initialise(){
-//		Random rand = new Random();
-//		
-//			int xcoord = rand.nextInt(dimension);
-//			int ycoord = rand.nextInt(dimension);
-//			coords[0] = xcoord;
-//			coords[1] = ycoord;
-//		return coords;
-//	}
 	
 	abstract void setSpeciesSymbol();
 	
@@ -164,21 +235,7 @@ public abstract class Species extends Thread {
 		return coords;
 	}
 	
-	private boolean checkCoords(int[][] input){
-		for (int i = 0; i < 5; i++){
-			for  (int j = 0; j < 5 && j != i; j++)
-				if (input[i][0] == input[j][0] && input[i][1] == input[j][1]){
-					return false;
-				}
-				else
-					continue;
-		}
-		return true;
-	}
 	abstract double getFitness();
-//	public double getFitness(){
-//		return fitness;
-//	}
 	
 	public boolean isEmpty(){
 		return empty;

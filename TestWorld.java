@@ -5,19 +5,15 @@ public class TestWorld{
 	private static Grid grid;
 	
 	public static void main(String[] args){
-		final int initialA = 5;
-		final int initialB = 5;
-		int rows = 20;
-		int cols = rows;
-//		ArrayList<SpeciesA> listA = new ArrayList<SpeciesA>();
-//		ArrayList<SpeciesB> listB = new ArrayList<SpeciesB>();
+		final int NUMINITIAL = 4;
+		final int GRIDSIZE = 20;
+		// Use wrapAround = true to have wraparound edges...
+		final boolean WRAPAROUND = true;
+		// Uncomment wrapAround = false to use hard edges...
+//		boolean wrapAround = false;
 		
-		grid = new Grid(rows, cols);
+		grid = new Grid(GRIDSIZE, NUMINITIAL, WRAPAROUND);
 		grid.start();
-		grid.startGame(4);
-//		listA.add(new SpeciesA(grid));
-//		listB.add(new SpeciesB(grid));
-//		listA.get(0).start();
-//		listB.get(0).start();
+		grid.startGame();
 	}
 }
