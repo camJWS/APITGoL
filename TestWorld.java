@@ -1,5 +1,8 @@
 import java.util.ArrayList;
-
+/**
+ * Main class to run the simulation
+ * @author Cameron Shanks
+ */
 public class TestWorld{
 	
 	private static Grid grid;

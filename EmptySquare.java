@@ -1,10 +1,10 @@
 /**
- * @author Cameron Shanks
  * Subclass that extends Species to 
  * assign an empty element of the grid 
  * to contain an object of type EmptySquare
  * to denote no creature exists in provided coordinates
  * Thread is never run.
+ * @author Cameron Shanks
  */
 public class EmptySquare extends Species {
 	/**
@@ -20,6 +20,7 @@ public class EmptySquare extends Species {
 		super(x,y,g);
 		empty = true;
 		speciesSymbol = "-";
+		alive = false;
 	}
 	
 	public void setLifespan(){

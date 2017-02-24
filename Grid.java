@@ -4,7 +4,6 @@ import java.util.Random;
  * Grid initialises the grid, and runs
  * the grid visualisation on its own Thread  
  * @author Cameron Shanks
- *
  */
 public class Grid extends Thread {
 	private Species[][] speciesGrid;			// Grid of species objects
@@ -54,52 +53,42 @@ public class Grid extends Thread {
 			}
 		}
 		return;
+	}	
+	/**
+	 * Starts the game by calling the getInitialCoords method
+	 * to provide random coordinates, checks for dupes
+	 * and then creates requested number of creature
+	 * threads and starts them running
+	 */
+	public void startGame(){
+		posList = new int[2*NUMINITIAL][NUMDIMENSIONS];
+		int[] xyPosA = new int[NUMDIMENSIONS];
+		int[] xyPosB = new int[NUMDIMENSIONS];
+		
+		for (int i = 0; i < NUMINITIAL; i++){
+			xyPosA = getInitialCoords();
+			xyPosB = getInitialCoords();
+			
+			posList[i][0] = xyPosA[0];
+			posList[i][1] = xyPosA[1];
+			posList[i+NUMINITIAL][0] = xyPosB[0];
+			posList[i+NUMINITIAL][1] = xyPosB[1];
+		}
+			
+		if (this.checkCoords(posList)){
+			for (int i = 0; i < NUMINITIAL; i++){
+				creatureListA.add(new SpeciesA(posList[i][0], posList[i][1], this));
+				creatureListA.get(i).start();
+				creatureListB.add(new SpeciesB(posList[i+NUMINITIAL][0], posList[i+NUMINITIAL][1], this));
+				creatureListB.get(i).start();
+			}
+		}
+		else{
+			System.err.println("DUPLICATE Coordinates...");
+			this.startGame();
+			return;
+		}
 	}
-	
-	public Species[][] getSpeciesGrid() {
-		return speciesGrid;
-	}
-
-	public void setSpeciesGrid(Species[][] speciesGrid) {
-		this.speciesGrid = speciesGrid;
-	}
-
-	public int[][] getPosList() {
-		return posList;
-	}
-
-	public void setPosList(int[][] posList) {
-		this.posList = posList;
-	}
-
-	public ArrayList<SpeciesA> getCreatureListA() {
-		return creatureListA;
-	}
-
-	public void setCreatureListA(ArrayList<SpeciesA> creatureListA) {
-		this.creatureListA = creatureListA;
-	}
-
-	public ArrayList<SpeciesB> getCreatureListB() {
-		return creatureListB;
-	}
-
-	public void setCreatureListB(ArrayList<SpeciesB> creatureListB) {
-		this.creatureListB = creatureListB;
-	}
-
-	public int getGRIDSIZE() {
-		return GRIDSIZE;
-	}
-
-	public int getNUMDIMENSIONS() {
-		return NUMDIMENSIONS;
-	}
-
-	public int getNUMINITIAL() {
-		return NUMINITIAL;
-	}
-	
 	/**
 	 * Method to update the Species grid
 	 * with the latest version
@@ -144,7 +133,12 @@ public class Grid extends Thread {
 	public Species[][] getGrid(){
 		return speciesGrid;
 	}
-	
+	/**
+	 * Updates a grid element with a new creature 
+	 * @param x coordinate
+	 * @param y coordinate
+	 * @param s Species new creature object
+	 */
 	public void setElement(int x, int y, Species s){
 		speciesGrid[x][y] = s;
 	}
@@ -179,43 +173,6 @@ public class Grid extends Thread {
 		return;				
 	}
 	/**
-	 * Starts the game by calling the getInitialCoords method
-	 * to provide random coordinates, checks for dupes
-	 * and then creates requested number of creature
-	 * threads and starts them running
-	 */
-	public void startGame(){
-		posList = new int[2*NUMINITIAL][NUMDIMENSIONS];
-		int[] xyPosA = new int[NUMDIMENSIONS];
-		int[] xyPosB = new int[NUMDIMENSIONS];
-		
-		for (int i = 0; i < NUMINITIAL; i++){
-			xyPosA = getInitialCoords();
-			xyPosB = getInitialCoords();
-			
-			posList[i][0] = xyPosA[0];
-			posList[i][1] = xyPosA[1];
-			posList[i+NUMINITIAL][0] = xyPosB[0];
-			posList[i+NUMINITIAL][1] = xyPosB[1];
-		}
-			
-		if (this.checkCoords(posList)){
-			for (int i = 0; i < NUMINITIAL; i++){
-				creatureListA.add(new SpeciesA(posList[i][0], posList[i][1], this));
-				creatureListA.get(i).start();
-				creatureListB.add(new SpeciesB(posList[i+NUMINITIAL][0], posList[i+NUMINITIAL][1], this));
-				creatureListB.get(i).start();
-			}
-		}
-		else{
-			System.err.println("DUPLICATE Coordinates...");
-			this.startGame();
-			return;
-		}
-		
-		
-	}
-	/**
 	 * Generates random set of 2D coordinates
 	 * @return coords integer tuple containing cart coords
 	 */
@@ -236,6 +193,69 @@ public class Grid extends Thread {
 	 */
 	public boolean isWrapAround(){
 		return WRAPAROUND;
+	}
+	
+	public int countCreaturesA(){
+		int count = 0;
+		for (int i = 0; i < creatureListA.size(); i++){
+			if (creatureListA.get(i).isCreatureAlive())
+				count++;
+		}
+		return count;
+	}
+	
+	public int countCreaturesB(){
+		int count = 0;
+		for (int i = 0; i < creatureListB.size(); i++){
+			if (creatureListA.get(i).isCreatureAlive())
+				count++;
+		}
+		return count;
+	}
+	
+	// GETTERS AND SETTERS
+	public Species[][] getSpeciesGrid() {
+		return speciesGrid;
+	}
+
+	public void setSpeciesGrid(Species[][] speciesGrid) {
+		this.speciesGrid = speciesGrid;
+	}
+
+	public int[][] getPosList() {
+		return posList;
+	}
+
+	public void setPosList(int[][] posList) {
+		this.posList = posList;
+	}
+
+	public ArrayList<SpeciesA> getCreatureListA() {
+		return creatureListA;
+	}
+
+	public void setCreatureListA(ArrayList<SpeciesA> creatureListA) {
+		this.creatureListA = creatureListA;
+	}
+
+	public ArrayList<SpeciesB> getCreatureListB() {
+		return creatureListB;
+	}
+
+	public void setCreatureListB(ArrayList<SpeciesB> creatureListB) {
+		this.creatureListB = creatureListB;
+	}
+
+	public int getGRIDSIZE() {
+		return GRIDSIZE;
+	}
+
+	public int getNUMDIMENSIONS() {
+		return NUMDIMENSIONS;
+	}
+
+	public int getNUMINITIAL() {
+		return NUMINITIAL;
 	}
 
 	

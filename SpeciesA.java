@@ -1,8 +1,8 @@
 import java.util.Random;
 /**
- * @author Cameron Shanks
  * Subclass that extends Species to 
  * be a particular form of species
+ * @author Cameron Shanks 
  */
 public class SpeciesA extends Species {
 	private final int MAXLIFESPAN = 10;
@@ -23,6 +23,7 @@ public class SpeciesA extends Species {
 		empty = false;
 		speciesSymbol = "A";
 		fitness = 0.8;
+		alive = true;
 	}
 	/**
 	 * Randomly sets the creatures lifespan

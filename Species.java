@@ -1,6 +1,10 @@
-import java.util.Random;
 import java.util.concurrent.locks.ReentrantLock;
-
+/**
+ * Abstract class to define and simulate behaviour of a creature of a certain
+ * Species  
+ * @author Cameron Shanks
+ *
+ */
 public abstract class Species extends Thread {
 	
 	protected int lifespan;					// Lifespan of the creature
@@ -8,14 +12,14 @@ public abstract class Species extends Thread {
 	protected int xcoord, ycoord;			// the x and y coordinates
 	protected int[][] xyPos;				// 2D array to hold xy coordinates of all potential squares for reproduction
 	protected Grid grid;					// The grid object
-//	protected Species[][] gridTemp;			//
 	protected final int GRIDSIZE;			// The size of the square grid (side)
 	protected String speciesSymbol;			// The String used to describe the creature in the printout of the grid
 	protected boolean empty;				// boolean used to determine whether the object is a creature or an Empty Square
-	protected boolean type;					//	
+	protected boolean type;					// boolean switch true for species A, false for species B
 	protected ReentrantLock gridLock;		// Lock for the creature's thread
 	protected double fitness;				// Fitness var, initialised in the subclass SpeciesA/SpeciesB
 	protected final int BIRTHRANGE = 3; 	// Sqrt Number of neighbouring squares creatures can reproduce into
+	protected boolean alive;
 	/**
 	 * Constructs the Creature initialsing its vital
 	 * stats and the necessary Thread lock
@@ -61,6 +65,7 @@ public abstract class Species extends Thread {
 			sleep(1000*this.getLifeSpan());
 			gridLock.lock();
 			try{
+				alive = false;
 				grid.setElement(coords[0], coords[1], this.die());
 				this.reproduce();
 			}
@@ -69,6 +74,7 @@ public abstract class Species extends Thread {
 			}
 			return;
 		} catch (InterruptedException e) {
+			alive = false;
 			return;
 		}
 	}
@@ -143,15 +149,11 @@ public abstract class Species extends Thread {
 					if (xtemp < 0 || xtemp >= GRIDSIZE || ytemp < 0 || ytemp >= GRIDSIZE){
 						continue;
 					}
-					else{
-						this.birth(xtemp, ytemp);
-						
+					else {
+						this.birth(xtemp, ytemp);	
 					}
-
 				}
-			}
-			
-				
+			}	
 		}
 	}
 	/**
@@ -173,6 +175,7 @@ public abstract class Species extends Thread {
 			if (Math.random() <= this.getFitness()){
 				grid.createNewCreature(x, y, this.getSpeciesSymbol());
 				this.interrupt();
+				alive = false;
 			}
 		}
 		else {
@@ -180,6 +183,7 @@ public abstract class Species extends Thread {
 			if (Math.random() <= (this.getFitness() - neighbour.getFitness())) {
 				grid.createNewCreature(x, y, this.getSpeciesSymbol());
 				this.interrupt();
+				alive = false;
 			}
 		}
 	}
@@ -193,16 +197,10 @@ public abstract class Species extends Thread {
 	public EmptySquare die(){
 		return new EmptySquare(coords[0],coords[1],grid);	
 	}
-	
-	abstract void setSpeciesSymbol();
-	
+
 	public String getSpeciesSymbol(){
 		return speciesSymbol;
 	}
-	
-//	public void lifetime() throws InterruptedException{
-//		this.sleep(lifespan*1000);
-//	}
 	
 	public int getLifeSpan(){
 		return lifespan;
@@ -212,8 +210,16 @@ public abstract class Species extends Thread {
 		int[] coords = {xcoord,ycoord};
 		return coords;
 	}
-	
+	/*
+	 * Abstract method defined in subclass
+	 * SpeciesA/B
+	 */
 	abstract double getFitness();
+	/*
+	 * Abstract method defined in subclass
+	 * SpeciesA/B
+	 */
+	abstract void setSpeciesSymbol();
 	/**
 	 * Returns boolean signalling
 	 * whether this object is a creature
@@ -222,5 +228,8 @@ public abstract class Species extends Thread {
 	 */
 	public boolean isEmpty(){
 		return empty;
+	}
+	public boolean isCreatureAlive(){
+		return alive;
 	}
 }

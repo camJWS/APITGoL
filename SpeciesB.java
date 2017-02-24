@@ -1,8 +1,8 @@
 import java.util.Random;
 /**
- * @author Cameron Shanks
  * Subclass that extends Species to 
  * be a particular form of species
+ * @author Cameron Shanks
  */
 public class SpeciesB extends Species {
 	private final int MAXLIFESPAN = 5;
@@ -10,7 +10,7 @@ public class SpeciesB extends Species {
 	 * Constructor inherits from Species,
 	 * but sets the fitness to the species
 	 * specific value, the boolean type to
-	 * true to represent species B, and the 
+	 * false to represent species B, and the 
 	 * boolean empty to false to denote that
 	 * this object is not an emptySquare object
 	 * @param x coordinate
@@ -23,6 +23,7 @@ public class SpeciesB extends Species {
 		empty = false;
 		speciesSymbol = "B";
 		fitness = 0.4;
+		alive = true;
 	}
 	/**
 	 * Randomly sets the creatures lifespan
