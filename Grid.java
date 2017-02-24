@@ -7,15 +7,24 @@ import java.util.Random;
  *
  */
 public class Grid extends Thread {
-	private Species[][] speciesGrid;
-	private int[][] posList; 
-	private final int GRIDSIZE;
-	private final int NUMDIMENSIONS = 2;
-	private final int NUMINITIAL;
-	private ArrayList<SpeciesA> creatureListA;
-	private ArrayList<SpeciesB> creatureListB;
-	private final boolean WRAPAROUND;
-	
+	private Species[][] speciesGrid;			// Grid of species objects
+	private int[][] posList; 					// List of 2D coordinates for initial positions
+	private final int GRIDSIZE;					// The size of the square grid
+	private final int NUMDIMENSIONS = 2;		// Currently set to only work in 2D
+	private final int NUMINITIAL;				// Number of initial creatures per species
+	private ArrayList<SpeciesA> creatureListA;	// List containing all Species A creatures
+	private ArrayList<SpeciesB> creatureListB;	// List containing all Species B creatures
+	private final boolean WRAPAROUND;			// Boolean to switch between wrap around/fixed border grid mode
+	private final int MAXRUNTIME = 1000;		// The maximum time the programme will run for in s
+	/**
+	 * Grid Constructor sets up lists to contain creatures and 
+	 * the grid to which they will be assigned elements.
+	 * Initialises each square to contain an 'EmptySquare' 
+	 * object
+	 * @param d sqrt of number of elements in grid
+	 * @param n number of initial creatures per species
+	 * @param w boolean wraparound switch
+	 */
 	public Grid(int d, int n, boolean w){
 		GRIDSIZE = d;
 		NUMINITIAL = n;
@@ -29,9 +38,14 @@ public class Grid extends Thread {
 			}
 		}
 	}
-	
+	/**
+	 * Run method prints the grid 1000 times, printing
+	 * once every half second
+	 * Uses MAXRUNTIME to define how long the program will
+	 * print for until terminating 
+	 */
 	public void run(){
-		for (int i = 0; i < 1000; i++){
+		for (int i = 0; i < 2*MAXRUNTIME; i++){
 			this.printGrid();
 			try {
 				sleep(500);
@@ -85,11 +99,20 @@ public class Grid extends Thread {
 	public int getNUMINITIAL() {
 		return NUMINITIAL;
 	}
-
+	
+	/**
+	 * Method to update the Species grid
+	 * with the latest version
+	 * @param g the new grid
+	 */
 	public void setGrid(Species[][] g){
 		speciesGrid = g;
 	}
-	
+	/**
+	 * Reads the current Grid and prints each
+	 * element's Species object's symbol to the
+	 * System out
+	 */
 	public void printGrid(){
 		for (int i = 0; i < GRIDSIZE; i++){
 			System.out.print("\n");
@@ -99,11 +122,15 @@ public class Grid extends Thread {
 		}
 		System.out.print("\n");
 	}
-	
+	/**
+	 * Checks whether the initial randomly chosen
+	 * coordinates contain any duplicates
+	 * @param input list of initial coordinates 
+	 * @return True if coordinates ok, false otherwise
+	 */
 	private boolean checkCoords(int[][] input){
 		for (int i = 0; i < NUMINITIAL; i++){
 			for  (int j = 0; j < NUMINITIAL && j != i; j++){
-				//System.out.println("("+ input[i][0] + "," + input[i][1] + ")\n(" + input[j][0] + "," + input[j][1] + ")\n");
 				if (input[i][0] == input[j][0] && input[i][1] == input[j][1]){
 					return false;
 				}
@@ -130,7 +157,15 @@ public class Grid extends Thread {
 		return GRIDSIZE;
 		
 	}
-	
+	/**
+	 * Creates a new creature of type A or B, sets the 
+	 * corresponding grid element with the new creature 
+	 * and starts the thread 
+	 * @param x x position
+	 * @param y y position
+	 * @param type String 'A' or 'B' to determine type 
+	 * of creature
+	 */
 	public void createNewCreature(int x, int y, String type){
 		Species t = null;
 		if (type.equals("A")){
@@ -143,17 +178,20 @@ public class Grid extends Thread {
 		t.start();
 		return;				
 	}
-	
+	/**
+	 * Starts the game by calling the getInitialCoords method
+	 * to provide random coordinates, checks for dupes
+	 * and then creates requested number of creature
+	 * threads and starts them running
+	 */
 	public void startGame(){
 		posList = new int[2*NUMINITIAL][NUMDIMENSIONS];
 		int[] xyPosA = new int[NUMDIMENSIONS];
 		int[] xyPosB = new int[NUMDIMENSIONS];
-		//posB = new int[NUMINITIAL][NUMDIMENSIONS];
+		
 		for (int i = 0; i < NUMINITIAL; i++){
 			xyPosA = getInitialCoords();
-					//	System.out.println("A Coordinate " + i + " (" + xyPosA[0] + "," + xyPosA[1]+")");
 			xyPosB = getInitialCoords();
-					//	System.out.println("B Coordinate " + i + " (" + xyPosB[0] + "," + xyPosB[1]+")");
 			
 			posList[i][0] = xyPosA[0];
 			posList[i][1] = xyPosA[1];
@@ -162,16 +200,11 @@ public class Grid extends Thread {
 		}
 			
 		if (this.checkCoords(posList)){
-			//System.out.println("coordinates good");
 			for (int i = 0; i < NUMINITIAL; i++){
 				creatureListA.add(new SpeciesA(posList[i][0], posList[i][1], this));
 				creatureListA.get(i).start();
 				creatureListB.add(new SpeciesB(posList[i+NUMINITIAL][0], posList[i+NUMINITIAL][1], this));
 				creatureListB.get(i).start();
-			//	System.out.println("A Fitness: " + creatureListA.get(i).getFitness() + ", coordinates (" + creatureListA.get(i).getCoords()[0] + "," + creatureListA.get(i).getCoords()[1] + ")" );
-				
-			//	System.out.println("B Fitness: " + creatureListB.get(i).getFitness() + ", coordinates (" + creatureListB.get(i).getCoords()[0] + "," + creatureListB.get(i).getCoords()[1] + ")" );
-				//return;
 			}
 		}
 		else{
@@ -182,7 +215,10 @@ public class Grid extends Thread {
 		
 		
 	}
-	
+	/**
+	 * Generates random set of 2D coordinates
+	 * @return coords integer tuple containing cart coords
+	 */
 	public int[] getInitialCoords(){
 		Random rand = new Random();
 		int[] coords = new int[NUMDIMENSIONS];
@@ -192,7 +228,12 @@ public class Grid extends Thread {
 		coords[1] = ycoord;
 		return coords;
 	}
-	
+	/**
+	 * Checks whether the wraparound mode has been selected
+	 * via the boolean
+	 * @return boolean WRAPAROUND
+	 * returns true if wraparound selected, otherwise false 
+	 */
 	public boolean isWrapAround(){
 		return WRAPAROUND;
 	}
